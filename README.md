@@ -52,10 +52,8 @@ Las decisiones que tomé y por qué:
 - **A conectar un sitio con GitHub.** Aprendí a pedirle a su API la lista de repos y sus README, a leerlos al armar el sitio y a publicar con GitHub Actions y GitHub Pages.
 - **A resolver un problema por mi cuenta y que funcione.** Al probar, el armado se cortaba porque GitHub frena los pedidos: sin token permite 60 por hora y cada armado gasta unos 25. Encontré la causa y la resolví; hoy el sitio se arma y se publica sin problema.
 - Un sitio casi estático no necesitaba un framework de React. Pasé de Next.js a Astro y quedó más liviano, reutilizando la lógica de GitHub.
-- El naranja quemado de detalle no pasa el contraste sobre las superficies de las cards, así que lo uso solo en bordes y puntos, nunca en texto.
 
 **Qué mejoraría**
 
 - No tiene tests automáticos. Lo verifico con la revisión de tipos, el armado y pruebas manuales en el navegador.
-- Los puntitos del carrusel miden 24 px, menos que los 44 px recomendados para tocar con el dedo.
 - Sumar un dominio propio en lugar de la dirección de GitHub Pages.
