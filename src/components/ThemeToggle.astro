@@ -1,0 +1,77 @@
+---
+// Interruptor de modo claro/oscuro, solo con íconos (sol y luna). Guarda la elección en
+// localStorage ("tema"). El valor guardado lo aplica el script de Base.astro antes de pintar.
+// aria-checked="true" significa modo oscuro.
+---
+
+<button
+  type="button"
+  role="switch"
+  aria-checked="true"
+  aria-label="Modo oscuro"
+  data-tema-boton
+  class="group inline-flex min-h-11 shrink-0 items-center"
+>
+  <span
+    class="relative inline-flex h-8 w-[4.25rem] items-center rounded-full border border-borde-fuerte bg-superficie transition-colors group-hover:border-acento"
+  >
+    <span
+      aria-hidden="true"
+      class="absolute left-0.5 size-6 rounded-full bg-acento transition-transform duration-300 ease-out group-aria-checked:translate-x-10"
+    ></span>
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      class="absolute left-1.5 size-4 fill-none stroke-current stroke-2 text-sobre-acento transition-colors group-aria-checked:text-texto-suave"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+    </svg>
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      class="absolute right-1 size-4 fill-none stroke-current stroke-2 text-texto-suave transition-colors group-aria-checked:text-sobre-acento"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+    </svg>
+  </span>
+</button>
+
+<script>
+  const consultaOscuro = window.matchMedia("(prefers-color-scheme: dark)");
+
+  // El modo que se está viendo: el elegido a mano o, si no hay, el del sistema.
+  function temaActual(): "light" | "dark" {
+    const elegido = document.documentElement.dataset.theme;
+    if (elegido === "light" || elegido === "dark") return elegido;
+    return consultaOscuro.matches ? "dark" : "light";
+  }
+
+  function pintar() {
+    const oscuro = temaActual() === "dark";
+    document.querySelectorAll<HTMLButtonElement>("[data-tema-boton]").forEach((boton) => {
+      boton.setAttribute("aria-checked", String(oscuro));
+    });
+  }
+
+  document.querySelectorAll<HTMLButtonElement>("[data-tema-boton]").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const siguiente = temaActual() === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = siguiente;
+      try {
+        localStorage.setItem("tema", siguiente);
+      } catch {
+        // Sin almacenamiento (modo privado): el cambio vale solo para esta visita.
+      }
+      pintar();
+    });
+  });
+
+  // Si no hay elección guardada y cambia el modo del sistema, se actualiza el interruptor.
+  consultaOscuro.addEventListener("change", pintar);
+  pintar();
+</script>

@@ -1,0 +1,61 @@
+---
+import { Font } from "astro:assets";
+import "@/styles/global.css";
+
+interface Props {
+  titulo?: string;
+  descripcion?: string;
+  // Para páginas de trabajo que no deben aparecer en los buscadores.
+  noindex?: boolean;
+}
+
+const {
+  titulo = "María Sol Alcaraz",
+  // Armada con el texto confirmado de la portada (2026-11-21). María Sol puede ajustarla.
+  descripcion = "Portfolio de María Sol Alcaraz, Software Developer · IA aplicada. Sitios, sistemas y herramientas simples, pensados para quien los va a usar.",
+  noindex = false,
+} = Astro.props;
+
+const ogImagen = Astro.site ? new URL("/og.png", Astro.site).href : undefined;
+
+// Se ejecuta antes de pintar la página, para que no parpadee:
+// Modo claro/oscuro: aplica la elección guardada (si no hay, manda el sistema).
+// La lógica del interruptor está en ThemeToggle.
+const antesDePintar = `try{var t=localStorage.getItem("tema");if(t==="light"||t==="dark"){document.documentElement.dataset.theme=t}}catch(e){}`;
+---
+
+<!doctype html>
+<html lang="es" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    {/* Vista previa al compartir. Imagen: public/og.png (1200x630); falta la URL final (sin dominio todavía). */}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    {/* og:image pide una dirección completa: se activa sola cuando se defina `site` en astro.config.mjs. */}
+    {ogImagen && <meta property="og:image" content={ogImagen} />}
+    {ogImagen && <meta property="og:image:width" content="1200" />}
+    {ogImagen && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content={ogImagen ? "summary_large_image" : "summary"} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <Font cssVariable="--font-dm-sans" preload />
+    <Font cssVariable="--font-newsreader" />
+    <script is:inline set:html={antesDePintar} />
+  </head>
+  <body class="min-h-full flex flex-col">
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-acento focus:px-5 focus:py-3 focus:text-sobre-acento"
+    >
+      Saltar al contenido
+    </a>
+    <slot />
+  </body>
+</html>

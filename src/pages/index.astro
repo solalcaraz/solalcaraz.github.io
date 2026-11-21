@@ -1,0 +1,29 @@
+---
+import Cabecera from "@/components/Cabecera.astro";
+import ComoTrabajo from "@/components/ComoTrabajo.astro";
+import Contacto from "@/components/Contacto.astro";
+import Formacion from "@/components/Formacion.astro";
+import Pie from "@/components/Pie.astro";
+import Portada from "@/components/Portada.astro";
+import SeccionProyectos from "@/components/SeccionProyectos.astro";
+import SobreMi from "@/components/SobreMi.astro";
+import Base from "@/layouts/Base.astro";
+import { getProyectos } from "@/lib/proyectos";
+
+// Página de inicio. Secciones hechas: portada, proyectos, cómo trabajo, sobre mí, formación
+// y contacto.
+const proyectos = await getProyectos();
+---
+
+<Base>
+  <Cabecera />
+  <main id="contenido">
+    <Portada />
+    <SeccionProyectos proyectos={proyectos} />
+    <ComoTrabajo />
+    <SobreMi />
+    <Formacion />
+    <Contacto />
+  </main>
+  <Pie />
+</Base>

@@ -1,0 +1,80 @@
+---
+import ThemeToggle from "@/components/ThemeToggle.astro";
+
+// Barra de arriba, fija. Enlaza a las secciones y marca en cuál estás (subrayado que crece).
+// Estilo "píldora flotante" centrada (2026-11-21). Sin rol escrito en la barra.
+const enlaces = [
+  { href: "#proyectos", texto: "Proyectos" },
+  { href: "#como-trabajo", texto: "Cómo trabajo" },
+  { href: "#sobre-mi", texto: "Sobre mí" },
+  { href: "#formacion", texto: "Formación" },
+  { href: "#contacto", texto: "Contacto" },
+];
+---
+
+<header class="pointer-events-none fixed inset-x-0 top-3 z-40 flex justify-center px-3 sm:top-4">
+  <nav
+    aria-label="Principal"
+    class="pointer-events-auto flex max-w-full items-center gap-3 rounded-full border border-borde-fuerte/60 bg-superficie/80 py-1 pl-5 pr-2 text-texto-suave shadow-lg shadow-black/25 backdrop-blur-md sm:gap-4 sm:pl-7"
+  >
+    <ul
+      data-nav-lista
+      class="relative flex min-w-0 items-center gap-x-5 overflow-x-auto px-1 sm:gap-x-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      {
+        enlaces.map((enlace) => (
+          <li class="shrink-0">
+            <a href={enlace.href} data-nav-enlace class="nav-enlace">
+              {enlace.texto}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <span aria-hidden="true" class="h-6 w-px shrink-0 bg-borde-fuerte/60"></span>
+    <ThemeToggle />
+  </nav>
+</header>
+
+<script>
+  // Marca en la barra la sección que se está leyendo.
+  const lista = document.querySelector<HTMLElement>("[data-nav-lista]");
+  const enlaces = [...document.querySelectorAll<HTMLAnchorElement>("[data-nav-enlace]")];
+  const secciones = enlaces.flatMap((enlace) => {
+    const seccion = document.querySelector<HTMLElement>(enlace.hash);
+    return seccion ? [seccion] : [];
+  });
+  const reducido = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  let actual = "";
+  function marcar(id: string) {
+    if (id === actual) return;
+    actual = id;
+    enlaces.forEach((enlace) => {
+      if (enlace.hash === `#${id}`) enlace.setAttribute("aria-current", "true");
+      else enlace.removeAttribute("aria-current");
+    });
+    // En pantallas angostas la barra se desplaza: el enlace activo queda a la vista.
+    const activo = enlaces.find((enlace) => enlace.hash === `#${id}`);
+    if (activo && lista && lista.scrollWidth > lista.clientWidth) {
+      lista.scrollTo({
+        left: activo.offsetLeft - (lista.clientWidth - activo.offsetWidth) / 2,
+        behavior: reducido.matches ? "auto" : "smooth",
+      });
+    }
+  }
+
+  // Una franja fina en el medio de la pantalla: la sección que la cruza es la activa.
+  const visibles = new Set<string>();
+  const observador = new IntersectionObserver(
+    (entradas) => {
+      entradas.forEach((entrada) => {
+        if (entrada.isIntersecting) visibles.add(entrada.target.id);
+        else visibles.delete(entrada.target.id);
+      });
+      marcar(secciones.find((seccion) => visibles.has(seccion.id))?.id ?? "");
+    },
+    { rootMargin: "-45% 0px -50% 0px" },
+  );
+  secciones.forEach((seccion) => observador.observe(seccion));
+</script>

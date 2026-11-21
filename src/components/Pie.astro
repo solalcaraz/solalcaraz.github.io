@@ -1,0 +1,36 @@
+---
+import { CONTACTO } from "@/config/contacto";
+
+// Pie de página: el código fuente del sitio y una firma que lleva al LinkedIn.
+// Texto confirmado (2026-11-21).
+const flecha = "size-4 shrink-0 fill-none stroke-current stroke-2";
+---
+
+<footer class="border-t border-borde">
+  <div
+    class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-chico text-texto-suave sm:flex-row sm:items-center sm:justify-between sm:px-8"
+  >
+    <a
+      href={CONTACTO.linkedin}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="group inline-flex min-h-11 items-center gap-2 transition-colors hover:text-texto"
+    >
+      <span aria-hidden="true" class="font-serif text-detalle text-base italic leading-none">*</span>
+      <span>Diseñado y programado por María Sol Alcaraz</span>
+      <span class="sr-only">(se abre LinkedIn en otra pestaña)</span>
+    </a>
+    <a
+      href={CONTACTO.codigoFuente}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex min-h-11 items-center gap-2 underline-offset-4 transition-colors hover:text-texto hover:underline"
+    >
+      <svg aria-hidden="true" viewBox="0 0 24 24" class={flecha} stroke-linecap="round" stroke-linejoin="round">
+        <path d="m8 7-5 5 5 5M16 7l5 5-5 5"></path>
+      </svg>
+      Código fuente de esta web
+      <span class="sr-only">(se abre en otra pestaña)</span>
+    </a>
+  </div>
+</footer>

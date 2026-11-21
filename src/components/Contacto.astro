@@ -1,0 +1,138 @@
+---
+import { CONTACTO } from "@/config/contacto";
+
+// Contacto: botones con texto (no URLs a la vista) y sin pedido de contratación.
+// Texto de invitación CONFIRMADO por María Sol el 2026-11-21 (opción 3, un poco más formal).
+//
+// El email está detrás de un ícono y NO aparece en el HTML: solo viaja dado vuelta y en base64
+// (ver src/config/contacto.ts) y se arma cuando alguien hace clic. Al hacer clic se copia la
+// dirección y se abre la app de mail; si no hay app, la persona igual ve la dirección y la tiene
+// copiada. Con JavaScript apagado el botón no hace nada (es a propósito: es el costo de no
+// dejar el mail a la vista).
+
+const enlaceClase =
+  "inline-flex min-h-11 items-center gap-3 rounded-full border border-borde-fuerte px-5 transition-colors hover:border-acento hover:bg-superficie-2";
+---
+
+<section
+  id="contacto"
+  aria-labelledby="titulo-contacto"
+  class="mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-[var(--espacio-seccion)] sm:px-8"
+>
+  <h2 id="titulo-contacto" class="text-titulo-2">Contacto</h2>
+  <p class="mt-3 max-w-2xl text-texto-suave">
+    Si llegaste hasta acá, es probable que algo te haya generado preguntas. Podés encontrarme en cualquiera de estos canales.
+  </p>
+
+  <ul class="mt-8 flex flex-wrap gap-3">
+    <li>
+      <button type="button" data-correo={CONTACTO.correoCodificado} class={enlaceClase}>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          class="size-5 shrink-0 fill-none stroke-current stroke-2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+          <path d="m3 7 9 6 9-6"></path>
+        </svg>
+        Email
+      </button>
+    </li>
+    <li>
+      <a href={CONTACTO.linkedin} target="_blank" rel="noopener noreferrer" class={enlaceClase}>
+        LinkedIn
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          class="size-4 shrink-0 fill-none stroke-current stroke-2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 17 17 7M8 7h9v9"></path>
+        </svg>
+        <span class="sr-only">(se abre en otra pestaña)</span>
+      </a>
+    </li>
+    <li>
+      <a href={CONTACTO.github} target="_blank" rel="noopener noreferrer" class={enlaceClase}>
+        GitHub
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          class="size-4 shrink-0 fill-none stroke-current stroke-2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 17 17 7M8 7h9v9"></path>
+        </svg>
+        <span class="sr-only">(se abre en otra pestaña)</span>
+      </a>
+    </li>
+    <li>
+      <a href={CONTACTO.cv} download class={enlaceClase}>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          class="size-5 shrink-0 fill-none stroke-current stroke-2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"></path>
+        </svg>
+        Descargar CV
+        <span class="sr-only">(PDF)</span>
+      </a>
+    </li>
+  </ul>
+
+  <p class="mt-4 min-h-6 text-chico text-texto-suave" data-correo-aviso></p>
+
+  {/* Aviso visual al copiar el email. */}
+  <div
+    role="status"
+    data-correo-toast
+    class="pointer-events-none fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 translate-y-4 items-center gap-2 rounded-full border border-acento bg-superficie px-5 py-3 opacity-0 shadow-lg transition-[opacity,transform] duration-300 data-[visible=true]:translate-y-0 data-[visible=true]:opacity-100"
+  >
+    <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5 shrink-0 fill-none stroke-acento stroke-2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m5 12 5 5 9-10"></path>
+    </svg>
+    <span data-correo-toast-texto></span>
+  </div>
+</section>
+
+<script>
+  // El mail se arma recién acá, cuando alguien hace clic.
+  const boton = document.querySelector<HTMLButtonElement>("[data-correo]");
+  const aviso = document.querySelector<HTMLElement>("[data-correo-aviso]");
+  const toast = document.querySelector<HTMLElement>("[data-correo-toast]");
+  const toastTexto = document.querySelector<HTMLElement>("[data-correo-toast-texto]");
+  let ocultar: number | undefined;
+
+  boton?.addEventListener("click", async () => {
+    const codificado = boton.dataset.correo ?? "";
+    let direccion = "";
+    try {
+      direccion = atob(codificado).split("").reverse().join("");
+    } catch {
+      return;
+    }
+
+    let copiado = false;
+    try {
+      await navigator.clipboard.writeText(direccion);
+      copiado = true;
+    } catch {
+      // Sin permiso para copiar: igual se muestra la dirección.
+    }
+    if (aviso) aviso.textContent = `Mi email es ${direccion}`;
+    if (toast && toastTexto) {
+      toastTexto.textContent = copiado ? "Email copiado al portapapeles" : "No pude copiarlo, pero lo dejé a la vista";
+      toast.dataset.visible = "true";
+      window.clearTimeout(ocultar);
+      ocultar = window.setTimeout(() => (toast.dataset.visible = "false"), 3000);
+    }
+    window.location.href = `mailto:${direccion}`;
+  });
+</script>

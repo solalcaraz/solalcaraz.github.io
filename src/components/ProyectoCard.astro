@@ -1,0 +1,491 @@
+---
+import { CONTEXTO, PORTADAS } from "@/config/proyectos";
+import type { Proyecto } from "@/lib/proyectos";
+
+// Card de un proyecto: de un pantallazo se ve qué es y con qué está hecho. Toda la card es un
+// solo botón (el botón "Ver el proyecto" se estira sobre ella) que abre una vista ampliada:
+// un <dialog> nativo (maneja el foco y la tecla Esc) con carrusel, detalle y enlaces.
+// Como en Instagram: la card muestra una imagen quieta y el GIF se reproduce recién en la vista
+// ampliada. Lo que falta en el README se muestra como PENDIENTE: nunca se inventa.
+interface Props {
+  proyecto: Proyecto;
+  // "card" (con imagen, para los destacados) o "fila" (compacta, para "Más proyectos").
+  variante?: "card" | "fila";
+}
+
+const { proyecto: p, variante = "card" } = Astro.props;
+const esFila = variante === "fila";
+const idTitulo = `titulo-${p.id}`;
+const esFreelance = p.origen === "freelance";
+
+// La portada de la card es siempre quieta: la captura que representa al sistema (PORTADAS) o,
+// por defecto, la primera captura quieta; si solo hay GIF, su primer cuadro.
+const eleccion = PORTADAS[p.id];
+const propia = typeof eleccion === "string" ? eleccion : null;
+const elegida = typeof eleccion === "number" ? p.demoMedia[eleccion] : undefined;
+const primera = elegida ?? p.demoMedia.find((m) => !m.animada) ?? p.demoMedia[0];
+const portada = propia ?? (primera ? (primera.animada ? primera.poster : primera.url) : null);
+const portadaAlt = propia ? `Pantalla de inicio de ${p.nombre}` : primera?.alt || `Imagen de ${p.nombre}`;
+
+const MAX_TECNOLOGIAS_EN_CARD = 3;
+const tecnologiasVisibles = p.tecnologias.slice(0, MAX_TECNOLOGIAS_EN_CARD);
+const tecnologiasOcultas = p.tecnologias.length - tecnologiasVisibles.length;
+
+// Los proyectos terminados traen su período fijado a mano; el resto, la fecha real de GitHub
+// (solo mes y año: no envejece mal).
+const fechaGitHub = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(
+  new Date(p.ultimaActividad),
+);
+const fecha = p.periodo ? `Período: ${p.periodo}` : `Última actividad: ${fechaGitHub}`;
+
+const contexto = p.origen ? CONTEXTO[p.origen] : null;
+const enlaceClase =
+  "inline-flex min-h-11 items-center rounded-full border border-borde-fuerte px-5 text-acento transition-colors hover:bg-superficie-2";
+const botonRedondo =
+  "inline-flex size-11 items-center justify-center rounded-full border border-borde-fuerte bg-fondo/85 text-texto backdrop-blur transition-colors hover:border-acento enabled:hover:bg-superficie-2 disabled:cursor-not-allowed disabled:opacity-30";
+const iconoFlecha = "size-5 fill-none stroke-current stroke-2";
+---
+
+<article
+  data-proyecto
+  class:list={[
+    "group relative overflow-hidden border bg-superficie transition-colors hover:bg-superficie-2 has-[[data-abrir]:focus-visible]:outline-2 has-[[data-abrir]:focus-visible]:outline-offset-4 has-[[data-abrir]:focus-visible]:outline-acento",
+    esFila ? "rounded-xl" : "flex h-full flex-col rounded-2xl",
+    esFreelance ? "border-detalle" : "border-borde hover:border-acento",
+  ]}
+>
+  {esFila ? (
+    <div class="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 p-3 sm:p-4 lg:grid-cols-[7.5rem_minmax(0,1.2fr)_minmax(0,1.3fr)_10rem_auto]">
+      {portada ? (
+        <img src={portada} alt="" loading="lazy" decoding="async" class="aspect-[16/10] w-full rounded-md border border-borde bg-superficie-2 object-cover object-top" />
+      ) : (
+        <div class="flex aspect-[16/10] w-full items-center justify-center rounded-md border border-borde bg-superficie-2 font-serif text-titulo-3 italic text-texto-suave" aria-hidden="true">
+          {p.nombre.charAt(0)}
+        </div>
+      )}
+      <div class="min-w-0">
+        <h3 id={idTitulo} class="text-titulo-3">{p.nombre}</h3>
+        {p.tipo && (
+          <p class="mt-1 flex items-center gap-2 text-chico text-texto-suave">
+            {esFreelance && <span class="size-2 shrink-0 rounded-full bg-detalle" aria-hidden="true" />}
+            {p.tipo}
+            {esFreelance && <span class="sr-only">(trabajo freelance)</span>}
+          </p>
+        )}
+      </div>
+      <ul class="hidden flex-nowrap gap-2 whitespace-nowrap lg:flex" aria-label="Tecnologías">
+        {tecnologiasVisibles.slice(0, 3).map((tecnologia) => (
+          <li class="rounded-md bg-superficie-2 px-2 py-1 text-chico group-hover:bg-superficie">{tecnologia}</li>
+        ))}
+      </ul>
+      <p class="hidden text-chico text-texto-suave lg:block">{fecha}</p>
+      <button
+        type="button"
+        data-abrir
+        aria-haspopup="dialog"
+        class="inline-flex min-h-11 items-center gap-2 rounded-full border border-borde-fuerte px-4 text-chico after:absolute after:inset-0 after:cursor-pointer after:content-[''] group-hover:border-acento"
+      >
+        Ver<span class="sr-only"> el proyecto: {p.nombre}</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2 transition-transform group-hover:translate-x-1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14m-5-5 5 5-5 5"></path>
+        </svg>
+      </button>
+    </div>
+  ) : (<>
+  <div class="overflow-hidden">
+    {
+      portada ? (
+        <img
+          src={portada}
+          alt={portadaAlt}
+          loading="lazy"
+          decoding="async"
+          class="aspect-[5/2] w-full border-b border-borde bg-superficie-2 object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+        />
+      ) : (
+        <div class="flex aspect-[16/9] w-full items-center justify-center border-b border-borde bg-superficie-2 px-6 text-center">
+          <p class="font-serif text-titulo-3 italic text-texto-suave" aria-hidden="true">
+            {p.nombre}
+          </p>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="flex flex-1 flex-col p-4">
+    {
+      p.tipo && (
+        <span class="inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-borde-fuerte px-3 py-1 text-chico">
+          {esFreelance && <span class="size-2 shrink-0 rounded-full bg-detalle" aria-hidden="true" />}
+          {p.tipo}
+          {esFreelance && <span class="sr-only">(trabajo freelance)</span>}
+        </span>
+      )
+    }
+
+    <h3 id={idTitulo} class="mt-2 text-titulo-3">{p.nombre}</h3>
+
+    <p class="mt-2 line-clamp-2">
+      {p.queHace ?? <span class="text-texto-suave">PENDIENTE: qué hace</span>}
+    </p>
+
+    {
+      p.tecnologias.length > 0 ? (
+        <ul class="mt-3 flex flex-wrap gap-2" aria-label="Tecnologías">
+          {tecnologiasVisibles.map((tecnologia) => (
+            <li class="rounded-md bg-superficie-2 px-2 py-1 text-chico group-hover:bg-superficie">
+              {tecnologia}
+            </li>
+          ))}
+          {tecnologiasOcultas > 0 && (
+            <li class="px-1 py-1 text-chico text-texto-suave">+{tecnologiasOcultas} más</li>
+          )}
+        </ul>
+      ) : (
+        <p class="mt-4 text-chico text-texto-suave">PENDIENTE: tecnologías</p>
+      )
+    }
+
+    <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
+      <p class="text-chico text-texto-suave">{fecha}</p>
+      <button
+        type="button"
+        data-abrir
+        aria-haspopup="dialog"
+        class="inline-flex min-h-11 items-center gap-2 rounded-full bg-acento px-5 font-medium text-sobre-acento after:absolute after:inset-0 after:cursor-pointer after:content-['']"
+      >
+        Ver el proyecto<span class="sr-only">: {p.nombre}</span>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          class="size-4 fill-none stroke-current stroke-2 transition-transform group-hover:translate-x-1"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14m-5-5 5 5-5 5"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  </>)}
+
+  <dialog
+    data-modal
+    aria-labelledby={`${idTitulo}-modal`}
+    class="m-auto max-h-[92vh] w-[min(60rem,94vw)] overflow-y-auto rounded-2xl border border-borde bg-fondo p-0 text-texto backdrop:bg-black/70"
+  >
+    <div class="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-borde bg-fondo/95 px-5 py-3 backdrop-blur sm:px-8">
+      {
+        p.tipo && (
+          <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-borde-fuerte px-3 py-1 text-chico">
+            {esFreelance && <span class="size-2 rounded-full bg-detalle" aria-hidden="true" />}
+            {p.tipo}
+            {esFreelance && <span class="sr-only">(trabajo freelance)</span>}
+          </span>
+        )
+      }
+      <h3 id={`${idTitulo}-modal`} class="min-w-0 flex-1 basis-40 text-titulo-3 sm:text-titulo-2">{p.nombre}</h3>
+      <button
+        type="button"
+        data-cerrar
+        aria-label="Cerrar la vista del proyecto"
+        class="ml-auto inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-borde-fuerte transition-colors hover:border-acento hover:bg-superficie-2"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5 fill-none stroke-current stroke-2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 6l12 12M18 6 6 18"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-5 sm:p-8">
+      {
+        p.demoMedia.length > 0 && (
+          <div data-carrusel>
+            <div class="relative">
+              <ul
+                data-pista
+                tabindex="0"
+                aria-label={`Capturas de ${p.nombre}`}
+                class="flex snap-x snap-mandatory overflow-x-auto rounded-lg [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {p.demoMedia.map((media) => (
+                  <li class="w-full shrink-0 snap-center" data-slide data-alt={media.alt}>
+                    <img
+                      src={media.animada ? media.poster : media.url}
+                      alt={media.alt || `Demo de ${p.nombre}`}
+                      loading="lazy"
+                      decoding="async"
+                      data-poster={media.poster ?? undefined}
+                      data-gif={media.animada ? media.url : undefined}
+                      class="aspect-video w-full rounded-lg border border-borde bg-superficie-2 object-contain"
+                    />
+                  </li>
+                ))}
+              </ul>
+              {p.demoMedia.length > 1 && (
+                <>
+                  <button type="button" data-anterior aria-label="Imagen anterior" class={`absolute left-3 top-1/2 -translate-y-1/2 ${botonRedondo}`}>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" class={iconoFlecha} stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m15 5-7 7 7 7"></path>
+                    </svg>
+                  </button>
+                  <button type="button" data-siguiente aria-label="Imagen siguiente" class={`absolute right-3 top-1/2 -translate-y-1/2 ${botonRedondo}`}>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" class={iconoFlecha} stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m9 5 7 7-7 7"></path>
+                    </svg>
+                  </button>
+                  <p
+                    data-contador
+                    aria-live="polite"
+                    class="absolute right-3 top-3 rounded-full border border-borde-fuerte bg-fondo/85 px-3 py-1 text-chico backdrop-blur"
+                  >
+                    1 / {p.demoMedia.length}
+                  </p>
+                </>
+              )}
+              <button
+                type="button"
+                data-gif-boton
+                aria-pressed="true"
+                hidden
+                class="absolute bottom-3 right-3 inline-flex min-h-11 items-center rounded-full border border-borde-fuerte bg-fondo/85 px-4 text-chico backdrop-blur transition-colors enabled:hover:bg-superficie-2 disabled:cursor-not-allowed disabled:text-texto-suave"
+              >
+                Pausar animación
+              </button>
+            </div>
+            <p data-leyenda class="mt-2 min-h-6 text-chico text-texto-suave">
+              {p.demoMedia[0]?.alt}
+            </p>
+            {p.demoMedia.length > 1 && (
+              <ul aria-hidden="true" class="mt-2 flex justify-center gap-2">
+                {p.demoMedia.map(() => (
+                  <li
+                    data-punto
+                    class="h-2 w-2 rounded-full bg-borde-fuerte transition-all data-[activo=true]:w-6 data-[activo=true]:bg-acento"
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      {
+        p.notasDemo.length > 0 && (
+          <div class="mt-4 space-y-1 text-chico text-texto-suave">
+            {p.notasDemo.map((nota) => (
+              <p>{nota}</p>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr]">
+        <section>
+          <h4 class="text-titulo-3">Qué es</h4>
+          <p class="mt-2">
+            {p.introduccion ?? p.queHace ?? "PENDIENTE: qué hace"}
+          </p>
+          {contexto && <p class="mt-2 text-texto-suave">{contexto}</p>}
+          {p.equipo && <p class="mt-2 text-texto-suave">{p.equipo}.</p>}
+          {
+            p.problema.length > 0 && (
+              <>
+                <h4 class="mt-6 text-titulo-3">Problema que resuelve</h4>
+                {p.problema.map((parrafo) => (
+                  <p class="mt-2">{parrafo}</p>
+                ))}
+              </>
+            )
+          }
+        </section>
+
+        <aside class="space-y-6">
+          {
+            p.tecnologias.length > 0 && (
+              <section>
+                <h4 class="text-titulo-3">Tecnologías</h4>
+                <ul class="mt-2 flex flex-wrap gap-2">
+                  {p.tecnologias.map((tecnologia) => (
+                    <li class="rounded-md bg-superficie-2 px-2 py-1 text-chico">{tecnologia}</li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          <section>
+            <h4 class="text-titulo-3">Enlaces</h4>
+            <ul class="mt-2 flex flex-col items-start gap-2">
+              {
+                p.demo && (
+                  <li>
+                    <a href={p.demo} target="_blank" rel="noopener noreferrer" class={enlaceClase}>
+                      Ver demo en línea
+                    </a>
+                  </li>
+                )
+              }
+              {
+                p.caso && (
+                  <li>
+                    <a href={p.caso} target="_blank" rel="noopener noreferrer" class={enlaceClase}>
+                      Ver el caso completo en GitHub
+                    </a>
+                  </li>
+                )
+              }
+              {
+                p.repos.map((repo) => (
+                  <li>
+                    <a href={repo.url} target="_blank" rel="noopener noreferrer" class={enlaceClase}>
+                      Repositorio: {repo.nombre}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+            {p.caso && <p class="mt-3 text-chico text-texto-suave">El código de este proyecto es privado.</p>}
+          </section>
+
+          <p class="text-chico text-texto-suave">{fecha}</p>
+        </aside>
+      </div>
+
+      {
+        (p.decisiones.length > 0 || p.aprendizajes.length > 0) && (
+          <div class="mt-8 grid gap-8 border-t border-borde pt-8 md:grid-cols-2">
+            {p.decisiones.length > 0 && (
+              <section>
+                <h4 class="text-titulo-3">Decisiones que tomé</h4>
+                <ul class="mt-2 list-disc space-y-2 pl-5">
+                  {p.decisiones.map((decision) => (
+                    <li>{decision}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {p.aprendizajes.length > 0 && (
+              <section>
+                <h4 class="text-titulo-3">Qué aprendí</h4>
+                <ul class="mt-2 list-disc space-y-2 pl-5">
+                  {p.aprendizajes.map((aprendizaje) => (
+                    <li>{aprendizaje}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+        )
+      }
+
+      {
+        p.autoria.length > 0 && (
+          <section class="mt-8 border-t border-borde pt-8">
+            <h4 class="text-titulo-3">Autoría y mejoras</h4>
+            <ul class="mt-2 list-disc space-y-2 pl-5">
+              {p.autoria.map((linea) => (
+                <li>{linea}</li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </dialog>
+</article>
+
+<script>
+  // Vista ampliada y carrusel. Sin librerías: <dialog> y scroll con "snap" del navegador.
+  // Los GIF se reproducen solo en la imagen que se está viendo, y recién al abrir la vista.
+  const consultaReducido = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  document.querySelectorAll<HTMLElement>("[data-proyecto]").forEach((card) => {
+    const modal = card.querySelector<HTMLDialogElement>("[data-modal]");
+    if (!modal) return;
+
+    const pista = modal.querySelector<HTMLElement>("[data-pista]");
+    const slides = [...modal.querySelectorAll<HTMLElement>("[data-slide]")];
+    const anterior = modal.querySelector<HTMLButtonElement>("[data-anterior]");
+    const siguiente = modal.querySelector<HTMLButtonElement>("[data-siguiente]");
+    const contador = modal.querySelector<HTMLElement>("[data-contador]");
+    const leyenda = modal.querySelector<HTMLElement>("[data-leyenda]");
+    const botonGif = modal.querySelector<HTMLButtonElement>("[data-gif-boton]");
+    const puntos = [...modal.querySelectorAll<HTMLElement>("[data-punto]")];
+
+    let activo = 0;
+    let pausado = false;
+
+    // Pone cada imagen en su estado: el GIF activo se mueve; todo lo demás queda quieto.
+    function mostrar() {
+      slides.forEach((slide, indice) => {
+        const imagen = slide.querySelector<HTMLImageElement>("img[data-gif]");
+        if (!imagen) return;
+        const mover = modal!.open && indice === activo && !pausado && !consultaReducido.matches;
+        const destino = mover ? imagen.dataset.gif : imagen.dataset.poster;
+        if (destino && imagen.getAttribute("src") !== destino) imagen.src = destino;
+      });
+
+      if (botonGif) {
+        const esGif = !!slides[activo]?.querySelector("img[data-gif]");
+        botonGif.hidden = !esGif;
+        botonGif.disabled = consultaReducido.matches;
+        botonGif.setAttribute("aria-pressed", String(!pausado && !consultaReducido.matches));
+        botonGif.textContent = consultaReducido.matches
+          ? "Animación desactivada por tu sistema"
+          : pausado
+            ? "Reproducir animación"
+            : "Pausar animación";
+      }
+      if (anterior) anterior.disabled = activo === 0;
+      if (siguiente) siguiente.disabled = activo === slides.length - 1;
+      if (contador) contador.textContent = `${activo + 1} / ${slides.length}`;
+      if (leyenda) leyenda.textContent = slides[activo]?.dataset.alt ?? "";
+      puntos.forEach((punto, indice) => (punto.dataset.activo = String(indice === activo)));
+    }
+
+    card.querySelectorAll<HTMLElement>("[data-abrir]").forEach((el) => {
+      el.addEventListener("click", () => {
+        modal.showModal();
+        modal.scrollTop = 0; // siempre se abre desde el principio
+        activo = 0;
+        pausado = false;
+        pista?.scrollTo({ left: 0, behavior: "auto" });
+        mostrar();
+      });
+    });
+    modal.querySelector("[data-cerrar]")?.addEventListener("click", () => modal.close());
+    // Un clic fuera del contenido (sobre el fondo oscuro) también cierra.
+    modal.addEventListener("click", (evento) => {
+      if (evento.target === modal) modal.close();
+    });
+    // Al cerrar, todo vuelve a quieto (y se deja de bajar el GIF).
+    modal.addEventListener("close", mostrar);
+
+    botonGif?.addEventListener("click", () => {
+      pausado = !pausado;
+      mostrar();
+    });
+    consultaReducido.addEventListener("change", mostrar);
+
+    if (!pista) return;
+    const mover = (direccion: 1 | -1) =>
+      pista.scrollBy({
+        left: direccion * pista.clientWidth,
+        behavior: consultaReducido.matches ? "auto" : "smooth",
+      });
+    anterior?.addEventListener("click", () => mover(-1));
+    siguiente?.addEventListener("click", () => mover(1));
+    pista.addEventListener(
+      "scroll",
+      () => {
+        const indice = Math.round(pista.scrollLeft / pista.clientWidth);
+        if (indice !== activo && indice >= 0 && indice < slides.length) {
+          activo = indice;
+          mostrar();
+        }
+      },
+      { passive: true },
+    );
+  });
+</script>

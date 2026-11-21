@@ -1,0 +1,47 @@
+# Arma y publica el sitio en GitHub Pages: con cada cambio en main y una vez por semana
+# (los proyectos se leen de GitHub al armar, así que el sitio se mantiene al día solo).
+# Si GitHub falla ese día, el armado falla, no se despliega nada y queda la versión anterior.
+#
+# PENDIENTE (todavía no está activa, no se publicó nada):
+# 1. Subir este repo a GitHub (público, llamado solalcaraz.github.io, sin topic "portfolio").
+# 2. En Settings > Pages, elegir "Source: GitHub Actions".
+
+name: Publicar sitio
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 12 * * 1" # lunes 12:00 UTC (09:00 en Argentina)
+  workflow_dispatch: # también se puede lanzar a mano desde la pestaña Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  armar:
+    runs-on: ubuntu-latest
+    env:
+      # El token automático alcanza para leer repos públicos (5.000 pedidos por hora).
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: withastro/action@v3
+        with:
+          node-version: 24
+
+  publicar:
+    needs: armar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4

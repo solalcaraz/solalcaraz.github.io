@@ -1,0 +1,85 @@
+---
+import ThemeToggle from "@/components/ThemeToggle.astro";
+import Base from "@/layouts/Base.astro";
+
+// PÁGINA DE TRABAJO (no aparece en buscadores): muestra los colores y la tipografía del
+// sistema de diseño, en los dos modos. Solo existe en desarrollo: astro.config.mjs la
+// borra del sitio armado.
+
+const colores = [
+  { nombre: "fondo", clase: "bg-fondo" },
+  { nombre: "superficie", clase: "bg-superficie" },
+  { nombre: "superficie-2", clase: "bg-superficie-2" },
+  { nombre: "texto", clase: "bg-texto" },
+  { nombre: "texto-suave", clase: "bg-texto-suave" },
+  { nombre: "acento (índigo)", clase: "bg-acento" },
+  { nombre: "detalle (durazno / naranja quemado)", clase: "bg-detalle" },
+  { nombre: "error", clase: "bg-error" },
+  { nombre: "borde", clase: "bg-borde" },
+  { nombre: "borde-fuerte", clase: "bg-borde-fuerte" },
+];
+
+---
+
+<Base titulo="Sistema de diseño" noindex>
+  <main id="contenido" class="mx-auto w-full max-w-5xl px-4 py-12 sm:px-8">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <p class="text-chico text-texto-suave">
+        Sistema de diseño · página de trabajo
+      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <ThemeToggle />
+      </div>
+    </div>
+
+    <section aria-labelledby="colores" class="mt-[var(--espacio-seccion)]">
+      <h2 id="colores" class="text-titulo-2">Colores</h2>
+      <ul class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {
+          colores.map((color) => (
+            <li class="rounded-lg border border-borde bg-superficie p-3">
+              <div class={`h-12 rounded-md border border-borde ${color.clase}`} aria-hidden="true" />
+              <p class="mt-2 text-chico">{color.nombre}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <a
+          href="#colores"
+          class="inline-flex min-h-11 items-center rounded-full bg-acento px-6 font-medium text-sobre-acento"
+        >
+          Botón con acento
+        </a>
+        <a href="#colores" class="min-h-11 py-2 text-acento underline underline-offset-4">
+          Enlace con acento
+        </a>
+        <span class="rounded-full border border-detalle px-3 py-1 text-chico text-detalle">
+          Etiqueta con el detalle
+        </span>
+        <p class="text-error">Mensaje de error de ejemplo</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="tipografia" class="mt-[var(--espacio-seccion)]">
+      <h2 id="tipografia" class="text-titulo-2">Tipografía</h2>
+      <div class="mt-6 space-y-6 rounded-2xl bg-superficie p-6 sm:p-10">
+        <p class="text-chico text-texto-suave">DM Sans con acento en Newsreader cursiva</p>
+        <p class="text-titulo-1">
+          Letra normal y <span class="font-serif italic">cursiva serif</span> en la misma frase
+        </p>
+        <p class="text-titulo-2">Título 2: una idea por título</p>
+        <p class="text-titulo-3">Título 3: para cada bloque</p>
+        <p class="text-cuerpo">
+          Texto de cuerpo: mínimo 16 px, con interlineado de 1,55 para que se lea cómodo en celular,
+          tablet y escritorio.
+        </p>
+        <p class="text-chico text-texto-suave">Texto chico y secundario.</p>
+      </div>
+      <p class="mt-4 text-chico text-texto-suave">
+        Pendiente: fuente mono del fondo estilo terminal.
+      </p>
+    </section>
+
+  </main>
+</Base>

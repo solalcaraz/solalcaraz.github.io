@@ -1,0 +1,74 @@
+---
+import { Image } from "astro:assets";
+import foto from "@/assets/foto.jpg";
+
+// Sobre mí. Primera persona, reflexivo y cercano, con un ejemplo real. Sin pedir nada.
+//
+// Textos CONFIRMADOS por María Sol el 2026-11-21 (incluido el "2026" del primer párrafo y las
+// frases interpretativas). Escrito con tono.md.
+// Decisiones suyas (2026-11-20): Psicología y Artes Visuales sin detalles ("forma mi carácter y
+// visión"); mencionar el Banco de la Nación y el freelance; Tecnicatura "cursada finalizada" sin
+// aclarar el título (para no tener que actualizarlo); lo personal, dicho con otras palabras.
+// Sin años que envejezcan ni frases como "actualmente" o "hoy".
+//
+// La foto (src/assets/foto.jpg) es una copia sin datos del celular (ubicación, modelo).
+// Decisión (2026-11-21): la foto se deja como está, sin tratamiento.
+---
+
+<section
+  id="sobre-mi"
+  aria-labelledby="titulo-sobre-mi"
+  class="mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-[var(--espacio-seccion)] sm:px-8"
+>
+  <h2 id="titulo-sobre-mi" class="text-titulo-2">Sobre <span class="font-serif italic">mí</span></h2>
+
+  <div class="mt-10 grid gap-10 md:grid-cols-[minmax(0,20rem)_1fr] md:gap-14">
+    <div>
+      <Image
+        src={foto}
+        alt="María Sol Alcaraz sonriendo, con una remera violeta"
+        width={640}
+        height={800}
+        densities={[1, 2]}
+        loading="lazy"
+        class="aspect-[4/5] w-full rounded-2xl border border-borde object-cover object-[35%_22%]"
+      />
+      <dl class="mt-5 space-y-3 text-chico">
+        <div>
+          <dt class="text-texto-suave">Vivo en</dt>
+          <dd>Buenos Aires, Argentina</dd>
+        </div>
+        <div>
+          <dt class="text-texto-suave">Estudié</dt>
+          <dd>Tecnicatura en Programación Informática, UNSAM (cursada finalizada)</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="max-w-2xl space-y-6 text-cuerpo">
+      <p>
+        En 2026 entregué dos webs con panel de administración. Lo que más me importó no fue el
+        código: fue que sus dueñas pudieran editarlas solas, sin romper nada.
+      </p>
+      <p>
+        Antes de escribir una línea, ordeno qué problema hay, qué hace falta y qué no. Creo que la
+        tecnología es una <em class="font-serif">herramienta</em>: tiene que ser sencilla y resolver
+        el problema sin hacer ruido.
+      </p>
+      <p>
+        Antes de programar estudié Psicología y Artes Visuales. Ahí se formó una manera de mirar: me
+        importa quién va a usar lo que armo y cómo se siente usarlo.
+      </p>
+      <p>
+        También hice atención y soporte por teléfono en el Banco de la Nación, y desde la facultad
+        armé sistemas en equipo, además de mis proyectos freelance. Cada lugar me enseñó algo distinto
+        sobre trabajar con otras personas.
+      </p>
+      <p>
+        Fuera de la compu casi siempre tengo algo entre las manos: una receta, una tela, un pincel. Me
+        gusta probar cosas que se salen de lo que suelo hacer y descubrir lugares nuevos, para comer o
+        para recorrer. Mucho de lo que armo termina llevando algo de eso.
+      </p>
+    </div>
+  </div>
+</section>

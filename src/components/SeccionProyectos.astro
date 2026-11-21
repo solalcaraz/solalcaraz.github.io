@@ -1,0 +1,202 @@
+---
+import ProyectoCard from "@/components/ProyectoCard.astro";
+import { DESTACADOS } from "@/config/proyectos";
+import type { Proyecto } from "@/lib/proyectos";
+
+// Sección de proyectos: los destacados en un carrusel (la card del medio queda en foco) y el
+// resto como lista compacta, "Más proyectos". Sin filtros (decisión 2026-11-21).
+interface Props {
+  proyectos: Proyecto[];
+}
+
+const { proyectos } = Astro.props;
+
+const destacados = DESTACADOS.flatMap((id) => proyectos.find((p) => p.id === id) ?? []);
+const otros = proyectos.filter((p) => !DESTACADOS.includes(p.id));
+
+const flecha = "size-5 fill-none stroke-current stroke-2";
+const botonFlecha =
+  "inline-flex size-11 items-center justify-center rounded-full border border-borde-fuerte transition-colors enabled:hover:border-acento enabled:hover:bg-superficie-2 disabled:cursor-not-allowed disabled:opacity-30";
+---
+
+<section
+  id="proyectos"
+  aria-labelledby="titulo-proyectos"
+  class="mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-[var(--espacio-seccion)] sm:px-8"
+>
+  <h2 id="titulo-proyectos" class="text-titulo-2">Proyectos</h2>
+  <p class="mt-3 max-w-2xl text-texto-suave">
+    Qué armé, qué problema resolvía y cómo lo pensé. Los trabajos freelance llevan un punto de color.
+  </p>
+
+  {
+    destacados.length > 0 && (
+      <div class="mt-10">
+        <h3 class="text-titulo-3">Destacados</h3>
+        {/* El carrusel usa todo el ancho para que se asomen las cards de los costados. */}
+        <div class="relative -mx-4 mt-6 sm:-mx-8">
+          <ul
+            data-pista-destacados
+            aria-label="Proyectos destacados"
+            class="flex snap-x snap-mandatory items-stretch gap-4 overflow-x-auto px-[calc(50%-min(78vw,21rem)/2)] pb-4 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {destacados.map((proyecto) => (
+              <li
+                data-destacado
+                class="w-[min(78vw,21rem)] shrink-0 snap-center transition-[transform,opacity] duration-300 data-[foco=false]:scale-[0.92] data-[foco=false]:opacity-55"
+              >
+                <ProyectoCard proyecto={proyecto} />
+              </li>
+            ))}
+          </ul>
+          <button type="button" data-destacados-anterior aria-label="Proyecto anterior" class={`${botonFlecha} absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 bg-fondo/85 backdrop-blur sm:inline-flex lg:left-[max(1rem,calc(50%-34rem))]`}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" class={flecha} stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 5-7 7 7 7" />
+            </svg>
+          </button>
+          <button type="button" data-destacados-siguiente aria-label="Proyecto siguiente" class={`${botonFlecha} absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 bg-fondo/85 backdrop-blur sm:inline-flex lg:right-[max(1rem,calc(50%-34rem))]`}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" class={flecha} stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 5 7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+        <ul data-puntos-destacados class="mt-1 flex items-center justify-center gap-1" aria-hidden="true" />
+      </div>
+    )
+  }
+
+  {
+    otros.length > 0 && (
+      <div class="mt-14">
+        <h3 class="text-titulo-3">Más proyectos</h3>
+        <ul class="mt-6 space-y-3">
+          {otros.map((proyecto) => (
+            <li>
+              <ProyectoCard proyecto={proyecto} variante="fila" />
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</section>
+
+<script>
+  // ---- Carrusel de destacados: la card más cercana al centro queda en foco ----
+  const pista = document.querySelector<HTMLElement>("[data-pista-destacados]");
+  const puntos = document.querySelector<HTMLElement>("[data-puntos-destacados]");
+  const anterior = document.querySelector<HTMLButtonElement>("[data-destacados-anterior]");
+  const siguiente = document.querySelector<HTMLButtonElement>("[data-destacados-siguiente]");
+  const reducido = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const destacados = [...document.querySelectorAll<HTMLElement>("[data-destacado]")];
+
+  const visibles = () => destacados;
+
+  // El centro de cada card, medido desde el borde izquierdo de la pista.
+  const centroDe = (item: HTMLElement) => item.offsetLeft + item.offsetWidth / 2;
+
+  function indiceEnFoco() {
+    if (!pista) return 0;
+    const centro = pista.scrollLeft + pista.clientWidth / 2;
+    let mejor = 0;
+    let distancia = Infinity;
+    visibles().forEach((item, indice) => {
+      const d = Math.abs(centroDe(item) - centro);
+      if (d < distancia) {
+        distancia = d;
+        mejor = indice;
+      }
+    });
+    return mejor;
+  }
+
+  function irA(indice: number) {
+    const item = visibles()[indice];
+    if (!pista || !item) return;
+    pista.scrollTo({
+      left: centroDe(item) - pista.clientWidth / 2,
+      behavior: reducido.matches ? "auto" : "smooth",
+    });
+  }
+
+  function pintarFoco() {
+    const lista = visibles();
+    const enFoco = indiceEnFoco();
+    lista.forEach((item, indice) => (item.dataset.foco = String(indice === enFoco)));
+    puntos?.querySelectorAll<HTMLElement>("[data-punto]").forEach((punto, indice) => {
+      punto.dataset.activo = String(indice === enFoco);
+    });
+  }
+
+  function armarPuntos() {
+    if (!puntos) return;
+    puntos.replaceChildren();
+    visibles().forEach((_, indice) => {
+      const li = document.createElement("li");
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.tabIndex = -1; // las flechas y las cards ya cubren el teclado
+      boton.className = "group/punto flex size-6 items-center justify-center";
+      boton.setAttribute("aria-label", `Ir al proyecto ${indice + 1}`);
+      const marca = document.createElement("span");
+      marca.dataset.punto = "";
+      marca.className =
+        "block h-2 w-2 rounded-full bg-borde-fuerte transition-all group-hover/punto:bg-acento data-[activo=true]:w-6 data-[activo=true]:bg-acento";
+      boton.append(marca);
+      boton.addEventListener("click", () => irA(indice));
+      li.append(boton);
+      puntos.append(li);
+    });
+  }
+
+  let pendiente = false;
+  pista?.addEventListener(
+    "scroll",
+    () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(() => {
+        pendiente = false;
+        pintarFoco();
+      });
+    },
+    { passive: true },
+  );
+  // Las flechas dan la vuelta: después del último vuelve al primero (y al revés).
+  anterior?.addEventListener("click", () => {
+    const n = visibles().length;
+    irA((indiceEnFoco() - 1 + n) % n);
+  });
+  siguiente?.addEventListener("click", () => {
+    const n = visibles().length;
+    irA((indiceEnFoco() + 1) % n);
+  });
+
+  // Un clic en una card que no está en foco la trae al centro; recién el siguiente la abre.
+  destacados.forEach((item) => {
+    item.addEventListener(
+      "click",
+      (evento) => {
+        const indice = visibles().indexOf(item);
+        if (item.dataset.foco === "false" && indice !== -1) {
+          evento.preventDefault();
+          evento.stopPropagation();
+          irA(indice);
+        }
+      },
+      true,
+    );
+  });
+
+  function reiniciarCarrusel() {
+    armarPuntos();
+    // Arranca en la card del medio (así no queda un vacío a la izquierda).
+    const lista = visibles();
+    const medio = lista[Math.floor((lista.length - 1) / 2)];
+    if (pista && medio) pista.scrollTo({ left: centroDe(medio) - pista.clientWidth / 2, behavior: "auto" });
+    pintarFoco();
+  }
+
+  window.addEventListener("resize", pintarFoco);
+  reiniciarCarrusel();
+</script>

@@ -1,0 +1,96 @@
+---
+// Cómo trabajo: los pasos y, abajo, dos bloques discretos (en equipo / con una clienta).
+//
+// Textos confirmados por María Sol (2026-11-21), escritos con su guía de tono.
+// Todo sale de lo que ella contó y de los README / perfil (nada inventado):
+// Un ejemplo por proyecto, el que mejor calza con cada paso (2026-11-21), todos de los README:
+// 01 Postulaciones (fallas de pasarle todo a un chat de IA), 02 Calis Trainer (investigación de
+// mercado) + Remy (embeddings), 03 Polar Canvas (JSON) contra BookLibre (tres bases), 04 Algo Que
+// Pedir (dominio extensible, tests y CI), 05 El Fogón de Don Nino (carta en una planilla).
+// Cada paso, un párrafo corto (2026-11-21): se sumaron los sistemas, no solo las webs.
+// - Remy App: diseñó la lógica de recomendación y la base de datos; otra persona la escribió en código.
+// - Algo Que Pedir: referente del grupo ante los tutores. Trello en varios proyectos;
+//   Scrum y Kanban en Remy y en Detección de anomalías.
+// La IA se menciona como una herramienta más, sin esconderla ni presentarla como autora.
+
+const pasos = [
+  {
+    titulo: "Entiendo el problema",
+    texto:
+      "Antes de armar Postulaciones listé qué falla cuando le pasás todo a un chat de IA: inventa datos, suena a IA, rompe el formato del CV y no avisa lo que falta. Cada falla terminó siendo una regla de la herramienta.",
+  },
+  {
+    titulo: "Investigo",
+    texto:
+      "Para Calis Trainer revisé escuelas de calistenia, marcas de fitness y la competencia en CABA, y de ahí salió su identidad. En Remy investigué embeddings para sugerir reemplazos de ingredientes sin armar una tabla a mano: un modelo multilingüe y los vectores guardados en la misma base, con pgvector.",
+  },
+  {
+    titulo: "Elijo la estructura que alcanza",
+    texto:
+      "A veces alcanza con poco: Polar Canvas es un sitio estático con el contenido en un JSON. Otras veces el problema pide más: en BookLibre coordinamos tres bases (PostgreSQL, MongoDB con shards y Redis), cada una donde mejor se consulta, y medí cuándo vale la pena la caché.",
+  },
+  {
+    titulo: "Recién ahí, el código",
+    texto:
+      "En Algo Que Pedir los precios, descuentos y criterios de cada usuario se combinan entre sí, así que modelamos el dominio para que sumar una regla no obligue a tocar lo que ya funciona, con tests y CI que lo cuidan. Uso herramientas como Claude Code; lo que se hace y cómo, lo decido y lo reviso yo.",
+  },
+  {
+    titulo: "Lo dejo documentado",
+    texto:
+      "Cada proyecto tiene su README: qué problema resuelve, cómo se usa, con qué está hecho, cómo funciona por dentro y qué mejoraría. Alguien que no me conoce puede entender el proyecto sin preguntarme, sea para usarlo o para seguir trabajando sobre él.",
+  },
+];
+
+// Dos bloques discretos (2026-11-21, opción A elegida por María Sol): cómo trabajo en equipo
+// y cómo trabajo con una clienta. Sin cajas, un párrafo cada uno.
+const modos = [
+  {
+    titulo: "En equipo",
+    texto:
+      "En la facultad trabajé en grupos de 5 y 6 personas, con Trello y, en dos proyectos, Scrum y Kanban. En Remy diseñé la lógica de recomendación y la base de datos; en Algo Que Pedir fui la referente del grupo ante los tutores.",
+  },
+  {
+    titulo: "Con una clienta",
+    texto:
+      "En mis dos trabajos freelance fui la única responsable: hablé con la clienta, armé el sitio y se lo entregué para que lo edite sola. Ella aporta su contenido y su mirada; yo lo convierto en algo que funcione.",
+  },
+];
+---
+
+<section
+  id="como-trabajo"
+  aria-labelledby="titulo-como-trabajo"
+  class="mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-[var(--espacio-seccion)] sm:px-8"
+>
+  <h2 id="titulo-como-trabajo" class="text-titulo-2">
+    Cómo <span class="font-serif italic">trabajo</span>
+  </h2>
+  <p class="mt-3 max-w-2xl text-texto-suave">
+    Antes del código hay un orden. Es el mismo para una clienta y para un equipo.
+  </p>
+
+  <ol class="mt-10 divide-y divide-borde border-y border-borde">
+    {
+      pasos.map((paso, indice) => (
+        <li class="grid gap-x-8 gap-y-2 py-6 md:grid-cols-[5rem_1fr_1.6fr]">
+          <span class="font-serif text-titulo-2 italic text-detalle" aria-hidden="true">
+            {String(indice + 1).padStart(2, "0")}
+          </span>
+          <h3 class="text-titulo-3">{paso.titulo}</h3>
+          <p>{paso.texto}</p>
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="mt-12 grid gap-x-12 gap-y-8 md:grid-cols-2">
+    {
+      modos.map((modo) => (
+        <div>
+          <h3 class="font-serif text-titulo-3 italic text-acento">{modo.titulo}</h3>
+          <p class="mt-2">{modo.texto}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>

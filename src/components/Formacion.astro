@@ -1,0 +1,70 @@
+---
+// Formación: solo lo que representa a María Sol (no es un listado de todo lo que cursó).
+//
+// Selección CONFIRMADA por María Sol el 2026-11-21: AWS Girls en plural (varias charlas), RedBa
+// afuera, y "en curso" / "2026" se dejan a propósito (se actualizan acá).
+// ESTE ES EL ÚNICO LUGAR QUE HAY QUE ACTUALIZAR cuando termine un curso: todo está en la lista
+// `grupos`, acá abajo. Las filas con "en curso" o "estoy con" son las que cambian; el resto no.
+//
+// Los eventos (Data Saturday LATAM, AWS Community Day y Ekoparty) van juntos en "Congresos y
+// eventos". Ekoparty es un congreso de seguridad: no es de la comunidad AWS Girls.
+//
+// Dejado afuera a propósito: Psicología y Artes Visuales (ya están en "Sobre mí", sin detalles),
+// y los cursos de Acompañante Terapéutico y Autismo (RedBa), decisión suya (2026-11-21).
+
+// Tres grupos cortos (rediseño del 2026-11-21: antes eran siete filas largas). Cada ítem lleva
+// un título y, como mucho, una línea. Los eventos y la comunidad van juntos en "Comunidad tech".
+const grupos = [
+  {
+    titulo: "Estudios",
+    items: [
+      { titulo: "Tecnicatura en Programación Informática", detalle: "UNSAM · 2023 – 2026 · cursada finalizada" },
+      { titulo: "Agencia de Aprendizaje a lo largo de la vida (Codo a Codo 4.0)", detalle: "Java, Full Stack Java y Diseño UX/UI" },
+    ],
+  },
+  {
+    titulo: "Cursos online",
+    items: [
+      { titulo: "TodoCode", detalle: "Introducción a la programación, bases de datos con MySQL, Git y GitHub desde cero, Java para principiantes y programación orientada a objetos con Java · en curso: Spring Security" },
+      { titulo: "Maxiprograma", detalle: "Programación desde cero, nivel universidad" },
+    ],
+  },
+  {
+    titulo: "Comunidad tech",
+    items: [
+      { titulo: "Comunidad Triple A", detalle: "Módulos de Claude Code y Claude Design" },
+      { titulo: "AWS Girls", detalle: "Charlas de la comunidad" },
+      { titulo: "Congresos y eventos · 2026", detalle: "Data Saturday LATAM, AWS Community Day y Ekoparty" },
+    ],
+  },
+];
+---
+
+<section
+  id="formacion"
+  aria-labelledby="titulo-formacion"
+  class="mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-[var(--espacio-seccion)] sm:px-8"
+>
+  <h2 id="titulo-formacion" class="text-titulo-2">
+    Formación y <span class="font-serif italic">comunidad</span>
+  </h2>
+  <p class="mt-3 max-w-2xl text-texto-suave">Lo que estudié y los lugares donde sigo aprendiendo.</p>
+
+  <div class="mt-10 grid gap-4 md:grid-cols-3">
+    {
+      grupos.map((grupo) => (
+        <div class="rounded-2xl border border-borde bg-superficie p-6">
+          <h3 class="font-serif text-titulo-3 italic text-acento">{grupo.titulo}</h3>
+          <ul class="mt-4 space-y-4">
+            {grupo.items.map((item) => (
+              <li>
+                <p class="font-medium">{item.titulo}</p>
+                <p class="text-chico text-texto-suave">{item.detalle}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</section>
