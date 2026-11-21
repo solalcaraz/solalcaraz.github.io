@@ -192,6 +192,21 @@ body {
   transform: scaleX(1);
 }
 
+/* En el menú vertical del celular: el enlace ocupa todo el ancho y el activo se marca con fondo. */
+@media (max-width: 47.99rem) {
+  .nav-enlace {
+    width: 100%;
+    border-radius: 1rem;
+    padding: 0 1rem;
+  }
+  .nav-enlace::after {
+    display: none;
+  }
+  .nav-enlace[aria-current="true"] {
+    background: var(--superficie-2);
+  }
+}
+
 /* Con una vista ampliada abierta, la página de atrás no se desplaza. */
 html:has(dialog[open]) {
   overflow: hidden;
