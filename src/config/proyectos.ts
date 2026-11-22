@@ -85,7 +85,7 @@ export const PERIODOS: Record<string, string> = {
   booklibre: "Marzo – junio de 2026",
   "transacciones-db-api": "Agosto – noviembre de 2025",
   "algo-que-pedir": "Marzo – noviembre de 2025",
-  "back-remy-app": "Marzo – junio de 2026",
+  "back-remy-app": "Marzo – julio de 2026",
   // Las tres webs de Triple A: los commits de sus carpetas van del 2 al 16 de noviembre de 2026.
   "web-fogon-nino": "Noviembre de 2026",
   "web-estudio-verde": "Noviembre de 2026",
