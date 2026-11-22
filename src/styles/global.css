@@ -237,6 +237,25 @@ html:has(dialog[open]) {
 }
 
 /*
+  Efecto 2: el asterisco da un giro completo, una sola vez, cuando ya subió la última palabra
+  del nombre (orden 2: 2 × 70 ms + 0,8 s ≈ 0,94 s). Solo transform; con el movimiento reducido
+  no gira (data-motion + regla de arriba).
+*/
+@keyframes girar {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.asterisco {
+  display: inline-block;
+  animation: girar 1.1s cubic-bezier(0.65, 0, 0.35, 1) 1s both;
+}
+
+/*
   Grano sutil (detalle estático, propio): ruido fino sobre la portada.
   No cuenta como efecto: no se mueve. Es decorativo (aria-hidden en el HTML).
 */

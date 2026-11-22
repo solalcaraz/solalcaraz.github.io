@@ -98,7 +98,7 @@ export const PERIODOS: Record<string, string> = {
 
 // Imagen que representa a cada proyecto en la card: la posición (desde 0) dentro de las capturas
 // de su README, o la ruta de una imagen propia en public/. Si no figura, se usa la primera captura
-// quieta. PENDIENTE: elegir la más representativa de los demás sistemas.
+// quieta (decisión 2026-11-21: los demás quedan así por ahora).
 export const PORTADAS: Record<string, number | string> = {
   booklibre: "/portadas/booklibre.png",
 };
@@ -137,7 +137,7 @@ export const INFO: Record<
     tipo: "Landing page + borradores de mail con Claude (MCP)",
     origen: "practica",
   },
-  // PENDIENTE: María Sol confirma estas dos etiquetas de tipo (propuestas el 2026-11-21).
+  // Etiquetas de Café Raíz y Crudo confirmadas por María Sol (2026-11-21).
   "cafe-raiz": {
     tipo: "Landing page + tienda con pedido por WhatsApp",
     origen: "practica",
@@ -154,8 +154,8 @@ export const INFO: Record<
     tipo: "Análisis de datos con IA",
     origen: "practica",
   },
-  // PENDIENTE: ¿BookLibre es una práctica? (no se asume, por eso no tiene origen)
-  booklibre: { tipo: "Plataforma de préstamos" },
+  // BookLibre es un proyecto de la facultad (confirmado 2026-11-21): se cuenta como práctica.
+  booklibre: { tipo: "Plataforma de préstamos", origen: "practica" },
   "algo-que-pedir": { tipo: "Sistema de pedidos", origen: "practica" },
 };
 
