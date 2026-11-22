@@ -22,6 +22,11 @@ export const DESGLOSES: { repo: string; carpetas: string[] }[] = [
     repo: "comunidad-triple-a-claude-code",
     carpetas: ["web-fogon-nino", "web-estudio-verde", "web-ferreyra"],
   },
+  // Prácticas del módulo de Claude Design (Triple A): Café Raíz y Crudo.
+  {
+    repo: "comunidad-triple-a-claude-design",
+    carpetas: ["cafe-raiz", "caso-crudo"],
+  },
 ];
 
 // Proyectos partidos en más de un repo: se muestran en una sola card.
@@ -52,6 +57,8 @@ export const ORDEN: string[] = [
   "web-fogon-nino",
   "web-estudio-verde",
   "web-ferreyra",
+  "cafe-raiz",
+  "caso-crudo",
   "transacciones-db-api",
   "booklibre",
   "algo-que-pedir",
@@ -65,7 +72,7 @@ export const DESTACADOS: string[] = [
   "polar-canvas",
   "back-remy-app",
   "postulaciones",
-  "web-fogon-nino",
+  "caso-crudo",
 ];
 
 // Período de los proyectos terminados. La card lo muestra en lugar de "Última actividad":
@@ -83,6 +90,9 @@ export const PERIODOS: Record<string, string> = {
   "web-fogon-nino": "Noviembre de 2026",
   "web-estudio-verde": "Noviembre de 2026",
   "web-ferreyra": "Noviembre de 2026",
+  // Los dos casos de Claude Design: commits del 7 al 21 de noviembre de 2026.
+  "cafe-raiz": "Noviembre de 2026",
+  "caso-crudo": "Noviembre de 2026",
 };
 // Postulaciones no figura a propósito: sigue abierta (la está midiendo) y muestra la actividad real.
 
@@ -125,6 +135,15 @@ export const INFO: Record<
   "web-estudio-verde": { tipo: "Landing page", origen: "practica" },
   "web-ferreyra": {
     tipo: "Landing page + borradores de mail con Claude (MCP)",
+    origen: "practica",
+  },
+  // PENDIENTE: María Sol confirma estas dos etiquetas de tipo (propuestas el 2026-11-21).
+  "cafe-raiz": {
+    tipo: "Landing page + tienda con pedido por WhatsApp",
+    origen: "practica",
+  },
+  "caso-crudo": {
+    tipo: "Landing page + tienda con pago simulado",
     origen: "practica",
   },
   "back-remy-app": {
